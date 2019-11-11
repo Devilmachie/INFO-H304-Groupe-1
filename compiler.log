@@ -1,0 +1,138 @@
+In file included from database.cpp:3:0:
+database.h:6:10: error: expected ‘=’ before ‘::’ token
+ using std::string;
+          ^~
+database.h:6:18: error: ‘template<class b_info> template<class table> using std = std::__cxx11::string’ redeclared as different kind of symbol
+ using std::string;
+                  ^
+<built-in>: note: previous declaration ‘namespace std { }’
+database.h:12:2: error: ‘ifstream’ does not name a type; did you mean ‘fread’?
+  ifstream read_in_db;
+  ^~~~~~~~
+  fread
+database.h:37:2: error: ‘b_info’ does not name a type; did you mean ‘u_int’?
+  b_info readb_data(b_info buffer,int n_info);
+  ^~~~~~
+  u_int
+database.h:39:24: error: ‘table’ has not been declared
+  void initialize_table(table new_table,int size);
+                        ^~~~~
+database.cpp: In member function ‘void DataBase::openDB()’:
+database.cpp:20:24: error: ‘class DataBase’ has no member named ‘read_in_db’
+  ifstream & db = this->read_in_db;
+                        ^~~~~~~~~~
+database.cpp:21:42: error: invalid conversion from ‘const char*’ to ‘char*’ [-fpermissive]
+  char* db_path = (this->path_to_db).c_str();
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^~
+database.cpp:22:38: error: no matching function for call to ‘std::basic_ifstream<char>::open(char*&, bool)’
+  db.open(db_path,ios::in||ios::binary);
+                                      ^
+In file included from database.h:1:0,
+                 from database.cpp:3:
+/usr/include/c++/7/fstream:595:7: note: candidate: void std::basic_ifstream<_CharT, _Traits>::open(const char*, std::ios_base::openmode) [with _CharT = char; _Traits = std::char_traits<char>; std::ios_base::openmode = std::_Ios_Openmode]
+       open(const char* __s, ios_base::openmode __mode = ios_base::in)
+       ^~~~
+/usr/include/c++/7/fstream:595:7: note:   no known conversion for argument 2 from ‘bool’ to ‘std::ios_base::openmode {aka std::_Ios_Openmode}’
+/usr/include/c++/7/fstream:615:7: note: candidate: void std::basic_ifstream<_CharT, _Traits>::open(const string&, std::ios_base::openmode) [with _CharT = char; _Traits = std::char_traits<char>; std::__cxx11::string = std::__cxx11::basic_string<char>; std::ios_base::openmode = std::_Ios_Openmode]
+       open(const std::string& __s, ios_base::openmode __mode = ios_base::in)
+       ^~~~
+/usr/include/c++/7/fstream:615:7: note:   no known conversion for argument 2 from ‘bool’ to ‘std::ios_base::openmode {aka std::_Ios_Openmode}’
+database.cpp: At global scope:
+database.cpp:27:6: error: prototype for ‘bool DataBase::closeDB()’ does not match any in class ‘DataBase’
+ bool DataBase::closeDB()
+      ^~~~~~~~
+In file included from database.cpp:3:0:
+database.h:36:7: error: candidate is: void DataBase::closeDB()
+  void closeDB();
+       ^~~~~~~
+database.cpp:37:41: error: ‘b_info’ has not been declared
+ void DataBase::readb_data(ifstream & db,b_info* buffer,streamsize n_info)
+                                         ^~~~~~
+database.cpp:37:73: error: no ‘void DataBase::readb_data(std::ifstream&, int*, std::streamsize)’ member function declared in class ‘DataBase’
+ void DataBase::readb_data(ifstream & db,b_info* buffer,streamsize n_info)
+                                                                         ^
+database.cpp: In member function ‘void DataBase::init_db()’:
+database.cpp:47:25: error: ‘class DataBase’ has no member named ‘read_in_db’
+   ifstream & db = this->read_in_db;
+                         ^~~~~~~~~~
+database.cpp:48:22: error: request for member ‘version’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.version,sizeof(this->version));
+                      ^~~~~~~
+database.cpp:48:3: error: ‘readb_data’ was not declared in this scope
+   readb_data(db,this.version,sizeof(this->version));
+   ^~~~~~~~~~
+database.cpp:48:3: note: suggested alternative: ‘random_data’
+   readb_data(db,this.version,sizeof(this->version));
+   ^~~~~~~~~~
+   random_data
+database.cpp:49:22: error: request for member ‘db_type’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.db_type,sizeof(this->db_type));
+                      ^~~~~~~
+database.cpp:50:22: error: request for member ‘title_len’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.title_len,sizeof(this->title_len));
+                      ^~~~~~~~~
+database.cpp:51:26: error: invalid conversion from ‘char*’ to ‘int’ [-fpermissive]
+   initialize_table(this->title,this->title_len);
+                    ~~~~~~^~~~~
+In file included from database.cpp:3:0:
+database.h:39:7: note:   initializing argument 1 of ‘void DataBase::initialize_table(int, int)’
+  void initialize_table(table new_table,int size);
+       ^~~~~~~~~~~~~~~~
+database.cpp:52:22: error: request for member ‘title’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.title,this->title_len*sizeof(this->title));
+                      ^~~~~
+database.cpp:53:22: error: request for member ‘t_stamp_len’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.t_stamp_len,sizeof(this->t_stamp_len));
+                      ^~~~~~~~~~~
+database.cpp:54:26: error: invalid conversion from ‘char*’ to ‘int’ [-fpermissive]
+   initialize_table(this->t_stamp,this->t_stamp_len);
+                    ~~~~~~^~~~~~~
+In file included from database.cpp:3:0:
+database.h:39:7: note:   initializing argument 1 of ‘void DataBase::initialize_table(int, int)’
+  void initialize_table(table new_table,int size);
+       ^~~~~~~~~~~~~~~~
+database.cpp:55:22: error: request for member ‘t_stamp’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.t_stamp,this->t_stamp_len*sizeof(this->t_stamp));
+                      ^~~~~~~
+database.cpp:56:22: error: request for member ‘N’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.N,sizeof(this->N));
+                      ^
+database.cpp:57:22: error: request for member ‘res_n’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.res_n,sizeof(this->res_n));
+                      ^~~~~
+database.cpp:58:22: error: request for member ‘max_s_len’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.max_s_len,sizeof(this->max_s_len));
+                      ^~~~~~~~~
+database.cpp:59:26: error: invalid conversion from ‘uint32_t* {aka unsigned int*}’ to ‘int’ [-fpermissive]
+   initialize_table(this->offset_h,this->N+1);
+                    ~~~~~~^~~~~~~~
+In file included from database.cpp:3:0:
+database.h:39:7: note:   initializing argument 1 of ‘void DataBase::initialize_table(int, int)’
+  void initialize_table(table new_table,int size);
+       ^~~~~~~~~~~~~~~~
+database.cpp:60:26: error: ‘class DataBase’ has no member named ‘offset_s’; did you mean ‘offset_h’?
+   initialize_table(this->offset_s,this->N+1);
+                          ^~~~~~~~
+                          offset_h
+database.cpp:61:22: error: request for member ‘offset_h’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.offset_h,(this->N+1)*sizeof(this->offset_h));
+                      ^~~~~~~~
+database.cpp:62:22: error: request for member ‘offset_s’ in ‘(DataBase*)this’, which is of pointer type ‘DataBase*’ (maybe you meant to use ‘->’ ?)
+   readb_data(db,this.offset_s,(this->N+1)*sizeof(this->offset_s));
+                      ^~~~~~~~
+database.cpp:62:56: error: ‘class DataBase’ has no member named ‘offset_s’; did you mean ‘offset_h’?
+   readb_data(db,this.offset_s,(this->N+1)*sizeof(this->offset_s));
+                                                        ^~~~~~~~
+                                                        offset_h
+database.cpp: At global scope:
+database.cpp:69:33: error: variable or field ‘initialize_table’ declared void
+ void DataBase::initialize_table(table new_table,int size)
+                                 ^~~~~
+database.cpp:69:33: error: ‘table’ was not declared in this scope
+database.cpp:69:33: note: suggested alternative: ‘mutable’
+ void DataBase::initialize_table(table new_table,int size)
+                                 ^~~~~
+                                 mutable
+database.cpp:69:49: error: expected primary-expression before ‘int’
+ void DataBase::initialize_table(table new_table,int size)
+                                                 ^~~
