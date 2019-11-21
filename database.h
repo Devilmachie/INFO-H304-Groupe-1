@@ -2,12 +2,16 @@
 #include <string>
 #include <iostream>
 #include "bdata.h"
+#include "sequence.h"
+
+#define IS_PROTEIN 1
+#define IS_DNA 0
 
 using std::string;
 using std::ifstream;
 using std::ios;
 using std::streamsize;
-using std::int32_t;
+
 
 
 
@@ -25,7 +29,7 @@ private:
 	BinaryData<uint32_t> t_stamp_len;
 	BinaryData<uint32_t> N;
 	BinaryData<uint32_t> max_s_len;
-
+	
 	BinaryData<uint64_t> res_n;
 
 	BinaryData<uint32_t> offset_h;
@@ -46,7 +50,7 @@ public:
 	~DataBase();
 	
 	void showDBInfo();
-	
-	//int searchSequence(const Sequence & searched_sequence);
-
+	//void sequenceToChar(char* buffer,uint32_t)
+	bool searchSequence(Sequence* new_sequence, char* header_path, char* residue_path);
+	void fishData(char* DBname, char* buffer, uint32_t offset,uint32_t size);
 };
