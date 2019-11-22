@@ -1,8 +1,13 @@
+#ifndef SEQUENCE_DEFINITION
+#define SEQUENCE_DEFINITION
+
 #include <string>
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <string.h>
+#include <set>
 
 using std::string;
 
@@ -13,10 +18,12 @@ private:
 	char* data;
 	int data_len;
 	uint8_t* tr_data;
-	std::map<char,int>* transcript;
+	static std::map<char,int> transcript;
 public:
 	Sequence();
 	Sequence(char* information,bool isDBPath=true);
+
+    ~Sequence();
 	void init_map();
 	void transcriptSequence();
 	
@@ -28,3 +35,4 @@ public:
 	int getDataLen() const;
 	bool operator== (const char* sequence);
 };
+#endif

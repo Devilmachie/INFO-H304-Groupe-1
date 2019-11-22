@@ -3,6 +3,7 @@
 #include <iostream>
 #include "bdata.h"
 #include "sequence.h"
+#include <cstring>
 
 #define IS_PROTEIN 1
 #define IS_DNA 0
@@ -50,7 +51,7 @@ public:
 	~DataBase();
 	
 	void showDBInfo();
-	//void sequenceToChar(char* buffer,uint32_t)
 	bool searchSequence(Sequence* new_sequence, char* header_path, char* residue_path);
-	void fishData(char* DBname, char* buffer, uint32_t offset,uint32_t size);
+	void fishData(ifstream & fp, char* buffer, uint32_t offset,uint32_t size);
+    void readHeader (ifstream & fp, char* buffer, uint32_t,uint32_t size);
 };

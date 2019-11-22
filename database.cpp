@@ -72,59 +72,56 @@ void DataBase::showDBInfo()
 	std::cout<<"\n---time_stamp : "<< (this->t_stamp).getData() <<std::endl;
 	std::cout<<"\n---nbr_of_sequences in DB : "<<*(this->N).getData() <<std::endl;
 	std::cout<<"\n---longest sequence in DB : "<<*(this->max_s_len).getData() <<std::endl;
-	std::cout<<"\n---offset header : "<< (this->offset_h).getData() <<std::endl;
 	std::cout<<"____________________________________________________________________________"<<std::endl;
 }
 
-void DataBase::fishData(char* DBname,char* buffer,uint32_t offset,uint32_t size)
+void DataBase::fishData(ifstream & fp,char* buffer,uint32_t offset,uint32_t size)
 {
-	ifstream fp;
-	fp.open(DBname,ios::in|ios::binary);
-	if (fp)
-	{
-		fp.seekg(offset,fp.beg);
-		fp.read(buffer,size);
-	}
-	else
-		std::cout<<"DB : "<< DBname <<"couldn't be open"<<std::endl;	
-	fp.close();
+	fp.seekg(offset,fp.beg);
+	fp.read(buffer,size);
 }
 
 bool DataBase::searchSequence(Sequence* searched_sequence, char* header_path, char* residue_path)
 {
+    ifstream fp;
+    fp.open(residue_path,ios::in|ios::binary);
 	bool hasBeenFound = false;
 	char* read_data = new char[*(this->max_s_len).getData()];
 	uint32_t i_max = *(this->N).getData(),actual_offset=0,actual_size=0;
 	uint32_t* offset_residue= (this->offset_r).getData();
 	uint32_t* offset_header = (this->offset_h).getData();
-
-	
+    if(!fp)
+    {
+        std::cout<<"DB couldn't be opened"<<std::endl;
+        return hasBeenFound;
+    }
+	std::cout<<"Entering loop"<<std::endl;
 	for(int i=0; i<i_max && !hasBeenFound; i++)
 	{
-		//std::cout<<i<<std::endl;
+        if(i%10 ==0)
+            std::cout<<i<<std::endl;
 		actual_offset=*(offset_residue+i);
 		actual_size=*(offset_residue+i+1)-*(offset_residue+i);
-		fishData(residue_path,read_data,actual_offset,actual_size);
+		fishData(fp,read_data,actual_offset,actual_size);
 		if(*searched_sequence==read_data)
 		{
+            fp.close();
+            fp.open(header_path,ios::in|ios::binary);
 			std::cout<<"Sequence has been found : "<<std::endl;
 			hasBeenFound=true;
 			actual_offset=*(offset_header+i);
 			actual_size=*(offset_header+i+1)-*(offset_header+i);		
-			std::cout<<"STILL OK "<<(actual_offset)<<", "<<actual_size<<std::endl;
 			char* header_sequence = new char[actual_size];
-			std::cout<<"STILL OK1"<<std::endl;
-			fishData(header_path, header_sequence,actual_offset,actual_size);
-			std::cout<<"STILL OK2"<<std::endl;
+			fishData(fp, header_sequence,actual_offset,actual_size);
 			searched_sequence->setName(header_sequence);
-			std::cout<<searched_sequence->getName()<<std::endl;
+			std::cout<<(searched_sequence->getName())<<std::endl;
 			
 		}
 		
 	}
 	if(!hasBeenFound)
 	{
-		std::cout<<"No equivalence founded"<<std::endl;
+		std::cout<<"No equivalence founded to : -> "<<std::endl;
 		std::cout<<searched_sequence->getData()<<std::endl;
 	}
 	delete read_data;

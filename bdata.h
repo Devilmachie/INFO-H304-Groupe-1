@@ -47,7 +47,6 @@ void BinaryData<binfo>::setData(std::ifstream & bfile,bool isTable,int sizeTable
 template <class binfo>
 BinaryData<binfo>::~BinaryData()
 {
-	std::cout<<"DESTRUCTEUR BDATA APPELE"<<std::endl;
 	delete (this->bdata) ;
 }
 
