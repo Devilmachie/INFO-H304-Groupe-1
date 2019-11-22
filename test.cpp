@@ -1,36 +1,29 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-//#include "database.h"
+#include "database.h"
 using namespace std;
-
-class test
-{
-	private:
-		char* name;
-	public:
-		void initialize(string str,int length)
-		{
-			const char* s = str.c_str();
-			this->name = new char[length];
-			for(int i=0;i<length;i++)
-				*(this->name+i)=*(s+i);
-		}
-};
-	
-
 #define NAME "/home/devilmachie/Desktop/swipe-master/uniprot_sprot.fasta.pin"
-void print(string string_to_print);
+#define NAME_H "/home/devilmachie/Desktop/swipe-master/uniprot_sprot.fasta.phr"
+#define NAME_R "/home/devilmachie/Desktop/swipe-master/uniprot_sprot.fasta.psq"
+#define NAME_S "/home/devilmachie/Desktop/swipe-master/P00533.fasta"	
+
+
+
 int main()
 {
+	DataBase* db = new DataBase(NAME);
+	//db->showDBInfo();
+	Sequence* seq = new Sequence(NAME_S);
+	db->searchSequence(seq,NAME_H,NAME_R);
 	
-	//DataBase db(NAME);
-	test t;
-	t.initialize("Hello",6);
+	delete seq;
+	delete db;
 
+	
 	return 0;
 }
-void print(string string_to_print)
-{
-	cout<<string_to_print<<endl;
-}
+
+
+
+
