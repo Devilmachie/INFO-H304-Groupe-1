@@ -1,70 +1,151 @@
 #include "database.h"
 
-
-DataBase::DataBase(string db_name)
+DataBase::DataBase(char* db_name)
 {
-	this->path_to_db=db_name;
+	is_open.insert(std::pair<char*,bool>(GENERAL,false));
+	is_open.insert(std::pair<char*,bool>(HEADER,false));
+	is_open.insert(std::pair<char*,bool>(SEQUENCE,false));
+	path_to_db=db_name;
 	init_db();
 }
 
 DataBase::~DataBase()
 {
-
-}
-
-
-void DataBase::openDB()
-{
-	ifstream & db = this->read_in_db;
-	char* db_path = (this->path_to_db).c_str();
-	db.open(db_path,ios::in||ios::binary);	
-	if(db)	this->is_open=true;
-		
-}
-
-bool DataBase::closeDB()
-{
-	ifstream & db = this->read_in_db;
-	if(db)
+	std::map<char*, bool>::iterator it;
+	for (it = is_open.begin(); it != is_open.end() ; it++)
 	{
-		db_close();
-		is_open=false;	
+		if(it->second)
+			closeDB(it->first);
+	}
+	
+}
+
+bool DataBase::anotherDBAlreadyOpen()
+{
+	bool isAlreadyOpen=false;
+	std::map<char*, bool>::iterator it;
+	for (it = is_open.begin(); it != is_open.end() && !isAlreadyOpen; it++)
+        {
+        	if(it->second)
+		{
+			isAlreadyOpen=true;
+			std::cout<<"DB file is already opened with extension : "<<it->first<<std::endl;
+		}
+        }
+	return isAlreadyOpen;
+}
+void DataBase::openDB(char* mode)
+{
+	if(!anotherDBAlreadyOpen())
+	{
+		string db_path = (string) path_to_db + mode;
+		read_in_db.open(db_path,ios::in|ios::binary);	
+		if(read_in_db)	
+			is_open[mode]=true;
+		else 
+			std::cout<<"problem with opening file with extension : "<<mode<<std::endl;
+	}
+
+}
+
+void DataBase::closeDB(char* mode)
+{
+	if(is_open[mode])
+	{
+		read_in_db.close();
+		is_open[mode]=false;	
+		std::cout<<"Closed DB with extension : "<<mode<<std::endl;
 	}
 }
 
-void DataBase::readb_data(ifstream & db,b_info* buffer,streamsize n_info)
-{
-	db.read(reinterpret_cast<char *>(buffer),n_info);
-}
 
 void DataBase::init_db()
 {
-	openDB();
-	if(this->is_open)
+	openDB(GENERAL);
+	if(is_open[GENERAL])
 	{
-		ifstream & db = this->read_in_db;
-		readb_data(db,this.version,sizeof(this->version));
-		readb_data(db,this.db_type,sizeof(this->db_type));
-		readb_data(db,this.title_len,sizeof(this->title_len));
-		initialize_table(this->title,this->title_len);
-		readb_data(db,this.title,this->title_len*sizeof(this->title));
-		readb_data(db,this.t_stamp_len,sizeof(this->t_stamp_len));
-		initialize_table(this->t_stamp,this->t_stamp_len);
-		readb_data(db,this.t_stamp,this->t_stamp_len*sizeof(this->t_stamp));
-		readb_data(db,this.N,sizeof(this->N));
-		readb_data(db,this.res_n,sizeof(this->res_n));
-		readb_data(db,this.max_s_len,sizeof(this->max_s_len));
-		initialize_table(this->offset_h,this->N+1);
-		initialize_table(this->offset_s,this->N+1);
-		readb_data(db,this.offset_h,(this->N+1)*sizeof(this->offset_h));
-		readb_data(db,this.offset_s,(this->N+1)*sizeof(this->offset_s));
+		this->version.setData(this->read_in_db);
+		this->db_type.setData(this->read_in_db);
+		this->title_len.setData(this->read_in_db);
+		this->title.setData(this->read_in_db, true, *(this->title_len).getData());
+		this->t_stamp_len.setData(this->read_in_db);
+		this->t_stamp.setData(this->read_in_db, true, *(this->t_stamp_len).getData());
+		this->N.setData(this->read_in_db);
+		this->res_n.setData(this->read_in_db);
+		this->max_s_len.setData(this->read_in_db);
+		this->offset_h.setData(this->read_in_db, true, *(this->N).getData() + 1);
+		this->offset_r.setData(this->read_in_db, true, *(this->N).getData() + 1);
+
+		closeDB(GENERAL);
 	}
 	else
 		std::cout<<"DB couldn't be open"<<std::endl;
-
+	
 }
 
-void DataBase::initialize_table(table new_table,int size)
+void DataBase::showDBInfo()
 {
-	new_table = new table[size];
+	std::cout<<"____________________________________________________________________________"<<std::endl;
+	std::cout<<"---NAME_Len : "<< (title).getData() <<std::endl; // recoit un pointeur vers 
+	std::cout<<"\n---version : "<< *(version).getData() <<std::endl;
+	std::cout<<"\n---db_type : "<< *(db_type).getData() <<std::endl;
+	std::cout<<"\n---time_stamp : "<< (t_stamp).getData() <<std::endl;
+	std::cout<<"\n---nbr_of_sequences in DB : "<<*(N).getData() <<std::endl;
+	std::cout<<"\n---longest sequence in DB : "<<*(max_s_len).getData() <<std::endl;
+	std::cout<<"____________________________________________________________________________"<<std::endl;
 }
+
+void DataBase::fishData(ifstream & fp,char* buffer,uint32_t offset,uint32_t size)
+{
+	fp.seekg(offset,fp.beg);
+	fp.read(buffer,size);
+}
+
+bool DataBase::searchSequence(Sequence* searched_sequence)
+{
+        openDB(SEQUENCE);
+	bool hasBeenFound = false;
+	char* read_data = new char[*(max_s_len).getData()];
+	uint32_t i_max = *(N).getData(),actual_offset=0,actual_size=0;
+	uint32_t* offset_residue= (offset_r).getData();
+	uint32_t* offset_header = (offset_h).getData();
+    	if(!is_open[SEQUENCE])
+    	{
+        	std::cout<<"DB couldn't be opened"<<std::endl;
+        	return hasBeenFound;
+    	}
+	std::cout<<"Entering loop"<<std::endl;
+	for(int i=0; i<i_max && !hasBeenFound; i++)
+	{
+		actual_offset=*(offset_residue+i);
+		actual_size=*(offset_residue+i+1)-*(offset_residue+i);
+		if(searched_sequence->getDataLen() == actual_size-1) // cause character 0 counts
+		{
+
+			fishData(read_in_db,read_data,actual_offset,actual_size);				
+			if(*searched_sequence==read_data)
+			{
+		    		closeDB(SEQUENCE);
+				openDB(HEADER);
+				hasBeenFound=true;
+				actual_offset=*(offset_header+i);
+				actual_size=*(offset_header+i+1)-*(offset_header+i);	
+				std::cout<<"Sequence has been found at pos : "<<i<<" with offset : "<<actual_offset<<std::endl;	
+				//Header* new_name = new Header(read_in_db,actual_offset,actual_size);
+				//searched_sequence->setName(new_name);
+				std::cout<<(searched_sequence->getName())<<std::endl;
+				
+			}
+		}
+		
+	}
+	if(!hasBeenFound)
+	{
+		std::cout<<"No equivalence founded to : -> "<<std::endl;
+		std::cout<<searched_sequence->getData()<<std::endl;
+	}
+	delete read_data;
+	return hasBeenFound;
+}
+
+

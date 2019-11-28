@@ -1,36 +1,32 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-//#include "database.h"
+#include "database.h"
+#include "sequence.h"
 using namespace std;
 
-class test
-{
-	private:
-		char* name;
-	public:
-		void initialize(string str,int length)
-		{
-			const char* s = str.c_str();
-			this->name = new char[length];
-			for(int i=0;i<length;i++)
-				*(this->name+i)=*(s+i);
-		}
-};
-	
 
-#define NAME "/home/devilmachie/Desktop/swipe-master/uniprot_sprot.fasta.pin"
-void print(string string_to_print);
-int main()
-{
-	
-	//DataBase db(NAME);
-	test t;
-	t.initialize("Hello",6);
 
+
+int main(int argc,char** argv)
+{
+	if(argc != 3)
+		std::cout<<"The correct use of this program is : "<<argv[0]<<" "<<"db_name.fasta "<<"protein_sequence.fasta"<<std::endl;
+	else
+	{
+		DataBase* db = new DataBase(argv[1]);
+		db->showDBInfo();
+		Sequence* seq = new Sequence(argv[2]);
+		db->searchSequence(seq);
+		
+		delete seq;
+		delete db;
+	}
+
+	
 	return 0;
 }
-void print(string string_to_print)
-{
-	cout<<string_to_print<<endl;
-}
+
+
+
+

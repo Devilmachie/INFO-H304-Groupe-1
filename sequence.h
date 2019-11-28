@@ -1,21 +1,40 @@
+#ifndef SEQUENCE_DEFINITION
+#define SEQUENCE_DEFINITION
+
 #include <string>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <string.h>
+#include <set>
+#include "header.h"
+
 using std::string;
 
 class Sequence
 {
 private:
-	string name;
-	string data;
+	Header* name;
+	char* data;
 	int data_len;
-public:
-	Sequence();
-	Sequence(string information);
+	uint8_t* tr_data;
+	static std::map<char,int> transcript;
 
-	void setName(string name);
-	void setData(string data);
+	void init_map();
+	void transcriptSequence();
+public:
+	Sequence(char* sequence_path);
+        ~Sequence();
+
+	
+	
+	void setName(Header* name);
+	void setData(char* data);
 
 	string getName() const;
 	string getData() const;
 	int getDataLen() const;
-	bool operator== (const Sequence & other_sequence);
+	bool operator== (const char* sequence);
 };
+#endif
