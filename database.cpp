@@ -129,12 +129,12 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 				openDB(HEADER);
 				hasBeenFound=true;
 				actual_offset=*(offset_header+i);
-				actual_size=*(offset_header+i+1)-*(offset_header+i);	
+				actual_size=*(offset_header+i+1)-*(offset_header+i);
+				char* header_name=new char[actual_size];	
 				std::cout<<"Sequence has been found at pos : "<<i<<" with offset : "<<actual_offset<<std::endl;	
-				//Header* new_name = new Header(read_in_db,actual_offset,actual_size);
-				//searched_sequence->setName(new_name);
-				std::cout<<(searched_sequence->getName())<<std::endl;
-				
+				fishData(read_in_db,header_name,actual_offset,actual_size);
+				std::cout<<header_name<<std::endl;
+				delete header_name;
 			}
 		}
 		
