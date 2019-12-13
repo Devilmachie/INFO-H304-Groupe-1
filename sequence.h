@@ -33,7 +33,7 @@ public:
 	void setData(char* data);
 
 	string getName() const;
-	string getData() const;
+	char* getData() const;
 	int getDataLen() const;
 	bool operator== (const char* sequence);
 };
