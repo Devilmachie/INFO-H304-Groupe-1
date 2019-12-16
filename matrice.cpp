@@ -276,7 +276,7 @@ void Matrice::create_subst_mat(const char* blosum, size_t blosumsize, int *matri
 	}
 }
 
-int main(){
+int* find_blosum(){
 	int matrix[625] = {0}; // initialize matrix to all 0 values
 	create_subst_mat(mat_blosum62, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
 	
@@ -287,6 +287,6 @@ int main(){
 		std::cout << endl;
 	}
 	
-	return 0;
+	return matrix;
 }
 	
