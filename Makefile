@@ -1,5 +1,5 @@
 main : database.o test.o sequence.o header.o
-	g++ test.o database.o header.o sequence.o bdata.h -o main
+	g++ test.o database.o header.o sequence.o bdata.h -o main -pthread
 
 database.o : database.cpp bdata.h
 	g++ -c database.cpp
