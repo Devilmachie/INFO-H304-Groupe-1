@@ -3,7 +3,7 @@
 #include <iostream>
 #include "bdata.h"
 #include "sequence.h"
-#include <cstring>
+#include <cstring> // check si stdlib
 #include <map>
 #include <thread>
 
@@ -13,6 +13,11 @@
 #define  GENERAL ".pin"
 #define  HEADER ".phr"
 #define  SEQUENCE ".psq"
+
+#define GAP_PENALTY 11
+#define EXTENSION_PENALTY 1
+#define RESULTS 20
+#define THREAD_COUNT 4
 
 using namespace std;
 
@@ -41,7 +46,17 @@ private:
 
 	BinaryData<char> title;
 	BinaryData<char> t_stamp;
-	//DB information en
+	
+	int min_score = 0;
+	int scores[RESULTS] = {0};
+	uint32_t offsets[RESULTS] = {0};
+	int sizes[RESULTS] = {0};
+
+	bool reading = false;
+
+	bool hasBeenFound;
+
+	int BLOSUM[625] = {0};
 	
 	void openDB(char* mode);
 	void closeDB(char* mode);

@@ -1,19 +1,4 @@
 #include "database.h"
-#define GAP_PENALTY 11
-#define EXTENSION_PENALTY 1
-#define RESULTS 20
-#define THREAD_COUNT 4
-
-int min_score = 0;
-int scores[RESULTS] = {0};
-uint32_t offsets[RESULTS] = {0};
-int sizes[RESULTS] = {0};
-
-bool reading = false;
-
-bool hasBeenFound;
-
-int BLOSUM[625] = {0};
 
 const char mat_blosum45[] = 
 "# Entries for the BLOSUM45 matrix at a scale of ln(2)/3.0.\n\
@@ -595,6 +580,8 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 {
         openDB(SEQUENCE);
 	hasBeenFound = false;
+	THREAD_COUNT=3;
+	cout << "threads : " << THREAD_COUNT << endl;
 	thread threads[THREAD_COUNT];
 	
     	if(!is_open[SEQUENCE])

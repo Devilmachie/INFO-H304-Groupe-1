@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <typeinfo>
+#include <typeinfo> //check si stdlib
 
 template <class binfo>
 
