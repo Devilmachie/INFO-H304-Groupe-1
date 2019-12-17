@@ -10,14 +10,9 @@
 #define IS_PROTEIN 1
 #define IS_DNA 0
 
-#define  GENERAL ".pin"
-#define  HEADER ".phr"
-#define  SEQUENCE ".psq"
-
-#define GAP_PENALTY 11
-#define EXTENSION_PENALTY 1
-#define RESULTS 20
-#define THREAD_COUNT 4
+#define GENERAL ".pin"
+#define HEADER ".phr"
+#define SEQUENCE ".psq"
 
 using namespace std;
 
@@ -45,13 +40,18 @@ private:
 	BinaryData<char> t_stamp;
 	
 	int min_score = 0;
-	int scores[RESULTS] = {0};
-	uint32_t offsets[RESULTS] = {0};
-	int sizes[RESULTS] = {0};
+	int* scores;
+	uint32_t* offsets;
+	int* sizes;
 
 	bool reading = false;
-
 	bool hasBeenFound;
+	
+	int gap_penalty;
+	int extension_penalty;
+	int results;
+	int thread_count;
+	int blosum_number;
 
 	int BLOSUM[625] = {0};
 	
@@ -69,7 +69,7 @@ private:
 
 	
 public:
-	DataBase(char* db_name);
+	DataBase(char* db_name, int go, int ge, int blos, int n, int t);
 	~DataBase();
 	
 	void showDBInfo();

@@ -146,14 +146,25 @@ X -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -6\n\
 * -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6  1\n";
 
 
-DataBase::DataBase(char* db_name)
+DataBase::DataBase(char* db_name, int go, int ge, int blos, int n, int t)
 {
+	gap_penalty = go;
+	extension_penalty = ge;
+	results = n;
+	thread_count = t;
+	blosum_number = blos;
+
+	scores = new int[results];
+	for(int i=0; i<results; i++)
+		scores[i]=0;
+	offsets = new uint32_t[results];
+	sizes = new int[results];
 
 	is_open.insert(pair<char*,bool>(GENERAL,false));
 	is_open.insert(pair<char*,bool>(HEADER,false));
 	is_open.insert(pair<char*,bool>(SEQUENCE,false));
 	path_to_db=db_name;
-	init_db();
+	init_db(); 
 }
 
 DataBase::~DataBase()
@@ -289,9 +300,7 @@ void DataBase::create_subst_mat(const char* blosum, size_t blosumsize, int *matr
 			if(blosum[i] == '#')
 			{
 				while(blosum[i] != '\n')
-				{
 					i++;
-				}
 				i++;
 				orderbegin = i;
 				break;
@@ -358,7 +367,15 @@ void DataBase::create_subst_mat(const char* blosum, size_t blosumsize, int *matr
 void DataBase::find_blosum()
 { 
 	int matrix[625] = {0}; // initialize matrix to all 0 values
-	create_subst_mat(mat_blosum62, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+	
+	switch(blosum_number)
+	{
+		case 62:create_subst_mat(mat_blosum62, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+		case 45:create_subst_mat(mat_blosum45, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+		case 50:create_subst_mat(mat_blosum50, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+		case 80:create_subst_mat(mat_blosum80, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+		case 90:create_subst_mat(mat_blosum90, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+	}
 	
 	for(int x = 0; x < 25; x++) // assigns values of temporary matrix to used matrix
 		for(int y = 0; y < 25; y++)
@@ -469,14 +486,14 @@ int DataBase::fill_matrix(short*** scoring_m, char* found_sequence, int found_le
 		for (short j=1; j<=searched_length; j++)
 		{
 			if ( !v_gap[j-1] ) //if no vertical gap is opened
-				up_score = (*scoring_m)[i-1][j] - GAP_PENALTY; 
+				up_score = (*scoring_m)[i-1][j] - gap_penalty; 
 			else
-				up_score = (*scoring_m)[i-1][j] - EXTENSION_PENALTY;
+				up_score = (*scoring_m)[i-1][j] - extension_penalty;
 				
 			if ( !h_gap ) //if no horizontal gap is opened
-				left_score = (int) (*scoring_m)[i][j-1] - GAP_PENALTY; 
+				left_score = (int) (*scoring_m)[i][j-1] - gap_penalty; 
 			else
-				left_score = (int) (*scoring_m)[i][j-1] - EXTENSION_PENALTY;
+				left_score = (int) (*scoring_m)[i][j-1] - extension_penalty;
 				
 			diag_score = (int) (*scoring_m)[i-1][j-1] +  BLOSUM[25*(found_sequence[i-1]-1)+searched_sequence[j-1]-1];
 			
@@ -531,8 +548,8 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 	uint32_t* offset_header = (offset_h).getData();
 	int score, header_size, min;
 	
-	for(int i=t_offset; i<i_max; i=i+THREAD_COUNT)
-	{ 
+	for(int i=t_offset; i<i_max; i=i+thread_count)
+	{
 		//finds offset in sequence database of wanted sequence
 		actual_offset=*(offset_residue+i);
 		actual_size=*(offset_residue+i+1)-*(offset_residue+i);
@@ -553,7 +570,7 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 		//fills matrix, and keeps the highest score of said matrix
 		score = fill_matrix(&scoring_m, read_data, actual_size-2, searched_sequence->getData(), searched_sequence->getDataLen()-1);
 		
-		//if said score is higher than the lowest score kept in memory, it is then itself kept in memroy. 	
+		//if said score is higher than the lowest score kept in memory, it is then itself kept in memroy. 
 		if(score > min_score)
 		{
 			hasBeenFound = true;
@@ -566,7 +583,7 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 			min = scores[0];
 			short found = 0;
 			
-			for(short j=0; j<RESULTS; j++)
+			for(short j=0; j<results; j++)
 			{
 				if( !found && scores[j] == min_score )
 				{
@@ -599,7 +616,7 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 {
         openDB(SEQUENCE);
 	hasBeenFound = false;
-	thread threads[THREAD_COUNT];
+	thread threads[thread_count];
 	
     	if(!is_open[SEQUENCE])
     	{
@@ -610,10 +627,10 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
     	find_blosum();
     	
     	//initializes the N threads
-    	for (short i=0; i<THREAD_COUNT; i++)
+    	for (short i=0; i<thread_count; i++)
     		threads[i] = thread(&DataBase::main_loop, this, searched_sequence, i);
     	
-    	for (short i=0; i<THREAD_COUNT; i++)
+    	for (short i=0; i<thread_count; i++)
     		threads[i].join();
 	
 	if(!hasBeenFound)
@@ -628,11 +645,11 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 			
 		int max, highest_id;
 		
-		for (int i=0; i<RESULTS; i++)
+		for (int i=0; i<results; i++)
 		{
 			max = 0;
 			
-			for (int j=0; j<RESULTS; j++)
+			for (int j=0; j<results; j++)
 			{
 				if ( scores[j] > max )
 				{
