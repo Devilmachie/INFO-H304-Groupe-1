@@ -149,16 +149,16 @@ X -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -6\n\
 DataBase::DataBase(char* db_name)
 {
 
-	is_open.insert(std::pair<char*,bool>(GENERAL,false));
-	is_open.insert(std::pair<char*,bool>(HEADER,false));
-	is_open.insert(std::pair<char*,bool>(SEQUENCE,false));
+	is_open.insert(pair<char*,bool>(GENERAL,false));
+	is_open.insert(pair<char*,bool>(HEADER,false));
+	is_open.insert(pair<char*,bool>(SEQUENCE,false));
 	path_to_db=db_name;
 	init_db();
 }
 
 DataBase::~DataBase()
 {
-	std::map<char*, bool>::iterator it;
+	map<char*, bool>::iterator it;
 	for (it = is_open.begin(); it != is_open.end() ; it++)
 	{
 		if(it->second)
@@ -169,28 +169,31 @@ DataBase::~DataBase()
 
 bool DataBase::anotherDBAlreadyOpen()
 {
-	bool isAlreadyOpen=false;
-	std::map<char*, bool>::iterator it;
+	bool isAlreadyOpen = false;
+	map<char*, bool>::iterator it;
+	
 	for (it = is_open.begin(); it != is_open.end() && !isAlreadyOpen; it++)
         {
         	if(it->second)
 		{
-			isAlreadyOpen=true;
-			std::cout<<"DB file is already opened with extension : "<<it->first<<std::endl;
+			isAlreadyOpen = true;
+			cout << "DB file is already opened with extension : "<<it->first << endl ;
 		}
         }
 	return isAlreadyOpen;
 }
+
 void DataBase::openDB(char* mode)
 {
 	if(!anotherDBAlreadyOpen())
 	{
 		string db_path = (string) path_to_db + mode;
 		read_in_db.open(db_path,ios::in|ios::binary);	
+		
 		if(read_in_db)	
-			is_open[mode]=true;
+			is_open[mode] = true;
 		else 
-			std::cout<<"problem with opening file with extension : "<<mode<<std::endl;
+			cout << "problem with opening file with extension : " << mode << endl;
 	}
 
 }
@@ -200,15 +203,15 @@ void DataBase::closeDB(char* mode)
 	if(is_open[mode])
 	{
 		read_in_db.close();
-		is_open[mode]=false;	
-		//std::cout<<"Closed DB with extension : "<<mode<<std::endl;
+		is_open[mode]=false;
 	}
 }
 
-
+//reads parameters of used database
 void DataBase::init_db()
 {
 	openDB(GENERAL);
+	
 	if(is_open[GENERAL])
 	{
 		this->version.setData(this->read_in_db);
@@ -226,12 +229,15 @@ void DataBase::init_db()
 		closeDB(GENERAL);
 	}
 	else
-		std::cout<<"DB couldn't be open"<<std::endl;
+		cout << "DB couldn't be open" << endl;
 	
 }
 
-int DataBase::getvalue(char c){
-	switch(c){
+//assigns correct value to each AA
+int DataBase::getvalue(char c)
+{
+	switch(c)
+	{
 		case 'A': return 0;
 		case 'B': return 1;
 		case 'C': return 2;
@@ -261,24 +267,29 @@ int DataBase::getvalue(char c){
 	}
 }
 
-void DataBase::create_subst_mat(const char* blosum, size_t blosumsize, int *matrix, size_t matrixsize) {
-	
-	if(matrixsize != 625) {
-		std::cout << "Matrix not of good size" << endl;
+//creates the subsitution matric based on chosen BLOSUM matrix
+void DataBase::create_subst_mat(const char* blosum, size_t blosumsize, int *matrix, size_t matrixsize) 
+{	
+	if(matrixsize != 625) 
+	{
+		cout << "Matrix not of good size" << endl;
 	}
-	else{
-		int order[25] ={0};
-		int limit = blosumsize;//sizeof(blosum[0]);
-		//std::cout << "limite : " << limit << " =? " << sizeof(blosum62) << endl;
+	else
+	{
+		int order[25] = {0};
+		int limit = blosumsize;
 		int orderbegin = 0;
 		int i = 0;
 		int j = 0;
 		int len = 77; // length of a line of char values
 		
 		
-		for(i = 0 ; i < 100; i++){ // don't read the lines beginning with #
-			if(blosum[i] == '#'){
-				while(blosum[i] != '\n'){
+		for(i = 0 ; i < 100; i++) // don't read the lines beginning with #
+		{ 
+			if(blosum[i] == '#')
+			{
+				while(blosum[i] != '\n')
+				{
 					i++;
 				}
 				i++;
@@ -288,93 +299,91 @@ void DataBase::create_subst_mat(const char* blosum, size_t blosumsize, int *matr
 		}	
 		
 		int k = 0;
-		for(j = orderbegin; blosum[j] != '\n'; j++){ //read the order of the AA and store in order[]
-			if(blosum[j] != ' '){
+		
+		for(j = orderbegin; blosum[j] != '\n'; j++) //read the order of the AA and store in order[]
+		{ 
+			if(blosum[j] != ' ')
+			{
 				order[k] = getvalue(blosum[j]);
 				k++;
 			}
 		}
 		
-		for(int b = 0; b < 25; b++){ // test if order correct
-			//std::cout << order[b] << ',' << endl;
-		}
 		int newbeg = j+1;
-		//std::cout << newbeg << endl;
 		
-		for(int h = 0; h < 25; h++){ // each of the 24 lines
+		for(int h = 0; h < 25; h++)// each of the 24 lines
+		{
 			int aa = getvalue(blosum[newbeg]);
 
-				
-			//std::cout << blosum[newbeg]  << " " << getvalue(blosum[newbeg+h*len]) << " H :" << h << " AA value :" << aa << endl;
 			k = 0;
-			//std::cout << newbeg+1 << endl;
-			for(int n = newbeg+1; (blosum[n] != '\n') && (n < limit) ; n++){ 
-				
+			
+			for(int n = newbeg+1; (blosum[n] != '\n') && (n < limit) ; n++)
+			{ 	
 
 				int value = 0;
-				if(blosum[n] == ' '){
-					//do nothing
-				}
+				if(blosum[n] == ' ')
+					; //do nothing
 				
-				else if(blosum[n] == '-'){ //case of negative value
+				else if(blosum[n] == '-') //case of negative value
+				{ 
 					n++;
 					int pos = aa*25 + order[k];
-					//std::cout << -(int)(blosum[n]-'0') << " "<<  pos << endl;
 					value = -(int)(blosum[n]-'0');
-					//std::cout << "AA :" << aa << " Value :" << value << " k :" << k <<" Pos :" << pos << endl;
-					matrix[pos] = value; //std::cout << value << endl;
+					matrix[pos] = value; 
 					k++;
 				}
-				else { //case of positive value
+				else //case of positive value
+				{
 					int pos = aa*25 + order[k];
 					
-					if( (blosum[n+1] == ' ') || (blosum[n+1] == '\n') ){ //one digit
+					if( (blosum[n+1] == ' ') || (blosum[n+1] == '\n') ) //one digit
 						value = (int)(blosum[n]-'0');
-					}
-					else{ //two digit
+					else //two digit
+					{
 						value = ((int)(blosum[n]-'0'))*10 + (int)(blosum[n+1]-'0');
 						n++;
 					}
-					//std::cout << "AA :" << aa << " Value :" << value << " k :" << k <<" Pos :" << pos << endl;
-					matrix[pos] = value;// std::cout << value << endl;
+					
+					matrix[pos] = value;
 					k++;
 				}
 			}
+			
 			k = 0;
 			newbeg += len;	
 		}	
 	}
 }
 
-int DataBase::find_blosum(){
+void DataBase::find_blosum()
+{ 
 	int matrix[625] = {0}; // initialize matrix to all 0 values
 	create_subst_mat(mat_blosum62, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
 	
-	for(int x = 0; x < 25; x++){ // check if matrix has been changed
-		for(int y = 0; y < 25; y++){
-			//std::cout << matrix[x*25+y] << ' ' ;
-			BLOSUM[x*25+y] = matrix[x*25+y];
-		}
-		//std::cout << endl;
-	}
+	for(int x = 0; x < 25; x++) // assigns values of temporary matrix to used matrix
+		for(int y = 0; y < 25; y++)
+			BLOSUM[x*25 + y] = matrix[x*25 + y];
 	
-	return 0;
+	return;
 }
 
-void DataBase::print_header(uint32_t offset, int size){
+void DataBase::print_header(uint32_t offset, int size)
+{
 	bool found_header;
 		
 	//finds header size and offset
-	char* full_header_name=new char[size];	
+	char* full_header_name = new char[size];	
 		
-	fishData(read_in_db,full_header_name,offset,size);
+	fishData(read_in_db, full_header_name,offset,size);
 			
 	//only keeps clean string
-	found_header=false;
+	found_header = false;
+	
 	for (int j=0; !found_header; j++)
 	{
 		//find beginning of sequence
-		if( full_header_name[j]==0x1A ){
+		if( full_header_name[j] == 0x1A )
+		{
 			//find length
 			size = (int) full_header_name[j+1];
 			offset = j+2;
@@ -383,7 +392,8 @@ void DataBase::print_header(uint32_t offset, int size){
 			if ( size < 0x00)
 			{
 				if (size != -127 )
-					std::cout << "name too long : "<< size << std::endl;
+					cout << "name too long : "<< size << endl;
+					
 				offset++;
 				size = (int) full_header_name[j+2]+256;
 			}
@@ -391,12 +401,16 @@ void DataBase::print_header(uint32_t offset, int size){
 			//makes sure next isn't another string/sequence/choice
 			if (full_header_name[offset]!=0x30 && full_header_name[offset]!=0xA1 && full_header_name[offset]!=0xA0 && full_header_name[offset]!=0x1A )
 			{
-				found_header=true;
+				found_header = true;
 				char* header_name=new char[size]; 
+				
 				for (int k=0; k<size; k++)
-					header_name[k]=full_header_name[offset+k];
+					header_name[k] = full_header_name[offset+k];
+					
 				delete full_header_name;
-				std::cout<<header_name<<std::endl;
+				
+				cout << header_name << endl;
+				
 				delete header_name; 
 			}
 			
@@ -408,33 +422,34 @@ void DataBase::print_header(uint32_t offset, int size){
 
 void DataBase::showDBInfo()
 {
-	std::cout<<"____________________________________________________________________________"<<std::endl;
-	std::cout<<"---NAME_Len : "<< (title).getData() <<std::endl; // recoit un pointeur vers 
-	std::cout<<"\n---version : "<< *(version).getData() <<std::endl;
-	std::cout<<"\n---db_type : "<< *(db_type).getData() <<std::endl;
-	std::cout<<"\n---time_stamp : "<< (t_stamp).getData() <<std::endl;
-	std::cout<<"\n---nbr_of_sequences in DB : "<<*(N).getData() <<std::endl;
-	std::cout<<"\n---longest sequence in DB : "<<*(max_s_len).getData() <<std::endl;
-	std::cout<<"____________________________________________________________________________"<<std::endl;
+	cout << "____________________________________________________________________________" << endl ;
+	cout << "---NAME_Len : " << (title).getData()  << endl ; // recoit un pointeur vers 
+	cout << "\n---version : " << *(version).getData()  << endl ;
+	cout << "\n---db_type : " << *(db_type).getData()  << endl ;
+	cout << "\n---time_stamp : " << (t_stamp).getData()  << endl ;
+	cout << "\n---nbr_of_sequences in DB : " << *(N).getData()  << endl ;
+	cout << "\n---longest sequence in DB : " << *(max_s_len).getData()  << endl ;
+	cout << "____________________________________________________________________________" << endl ;
 }
 
+//searches for a specific string of text and stores it in a buffer
 void DataBase::fishData(ifstream & fp,char* buffer,uint32_t offset,uint32_t size)
 {
 	fp.seekg(offset,fp.beg);
 	fp.read(buffer,size);
 }
 
+//fills out a given matrix using the Smith-Waterman algorithm
 int DataBase::fill_matrix(short*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length)
 {
 	short up_score;
 	short left_score;
 	short diag_score;
-	//int min;
 	short score;
 	short highest_score=0;
 	
-	short h_gap;
-	short v_gap[searched_length];
+	short h_gap; //checks if the allready is a horizontal gap opened
+	short v_gap[searched_length]; //checks if the allready is a vertical gap opened
 	
 	//first NULL lines
 	for (short i=0; i<=searched_length; i++)
@@ -453,19 +468,19 @@ int DataBase::fill_matrix(short*** scoring_m, char* found_sequence, int found_le
 		
 		for (short j=1; j<=searched_length; j++)
 		{
-			if ( !v_gap[j-1] ) 
-				{ up_score = (*scoring_m)[i-1][j] - GAP_PENALTY; }
+			if ( !v_gap[j-1] ) //if no vertical gap is opened
+				up_score = (*scoring_m)[i-1][j] - GAP_PENALTY; 
 			else
 				up_score = (*scoring_m)[i-1][j] - EXTENSION_PENALTY;
 				
-			if ( !h_gap )
-				{ left_score = (int) (*scoring_m)[i][j-1] - GAP_PENALTY; }
+			if ( !h_gap ) //if no horizontal gap is opened
+				left_score = (int) (*scoring_m)[i][j-1] - GAP_PENALTY; 
 			else
 				left_score = (int) (*scoring_m)[i][j-1] - EXTENSION_PENALTY;
 				
 			diag_score = (int) (*scoring_m)[i-1][j-1] +  BLOSUM[25*(found_sequence[i-1]-1)+searched_sequence[j-1]-1];
 			
-			//max
+			//find max
 			if(up_score<left_score)
 			{
 				if(diag_score<left_score)
@@ -481,7 +496,7 @@ int DataBase::fill_matrix(short*** scoring_m, char* found_sequence, int found_le
 					score=diag_score;
 			}
 			
-			
+			//sets gaps
 			if(score==up_score)
 				v_gap[j-1]++;
 			else
@@ -492,9 +507,10 @@ int DataBase::fill_matrix(short*** scoring_m, char* found_sequence, int found_le
 			else
 				h_gap=0;
 			
-			
+			//places scores in scoring matrix
 			(*scoring_m)[i][j]=score;
 			
+			//keeps highest score
 			if(score>highest_score)
 				highest_score=score;
 			 
@@ -505,49 +521,51 @@ int DataBase::fill_matrix(short*** scoring_m, char* found_sequence, int found_le
 	
 }
 
-void *DataBase::main_loop(Sequence* vargp, short t_offset)
+// loop that checks every N sequences, where N is the number of threads. 
+// We can offset each thread by i, with 0<=i<N, thus checking every sequence in the database.
+void *DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 {
-	Sequence* searched_sequence = (Sequence*) vargp;
 	char* read_data = new char[*(max_s_len).getData()];
 	uint32_t i_max = *(N).getData(), actual_offset=0, actual_size=0;
-	uint32_t* offset_residue= (offset_r).getData();
+	uint32_t* offset_residue = (offset_r).getData();
 	uint32_t* offset_header = (offset_h).getData();
 	int score, header_size, min;
 	
-    	if(!is_open[SEQUENCE])
-    	{
-        	std::cout<<"DB couldn't be opened"<<std::endl;
-        	return (void*) hasBeenFound;
-    	}
-	
-	find_blosum();
-		
-	
 	for(int i=t_offset; i<i_max; i=i+THREAD_COUNT)
 	{ 
+		//finds offset in sequence database of wanted sequence
 		actual_offset=*(offset_residue+i);
 		actual_size=*(offset_residue+i+1)-*(offset_residue+i);
+		
+		//prevents form reading of anther thread is already reading
 		while(reading)
 			;
+		
 		reading = true;
 		fishData(read_in_db,read_data,actual_offset,actual_size);
 		reading = false;
 		
+		//creates new scoring matrix of needed size;
 		short** scoring_m = new short*[(actual_size+1)];
 		for (short i=0; i<=actual_size; i++)
 			scoring_m[i]=new short[(searched_sequence->getDataLen()+1)];
 		
+		//fills matrix, and keeps the highest score of said matrix
 		score = fill_matrix(&scoring_m, read_data, actual_size-2, searched_sequence->getData(), searched_sequence->getDataLen()-1);
-			
-		if(score>min_score)
+		
+		//if said score is higher than the lowest score kept in memory, it is then itself kept in memroy. 	
+		if(score > min_score)
 		{
 			hasBeenFound = true;
-	
-			actual_offset=*(offset_header+i);
-			header_size=*(offset_header+i+1)-actual_offset;	
 			
+			//finds header size and position
+			actual_offset = *(offset_header+i);
+			header_size = *(offset_header+i+1) - actual_offset;	
+			
+			//finds the new owest score and places new score in the array.
 			min = scores[0];
-			short found=0;
+			short found = 0;
+			
 			for(short j=0; j<RESULTS; j++)
 			{
 				if( !found && scores[j] == min_score )
@@ -557,6 +575,7 @@ void *DataBase::main_loop(Sequence* vargp, short t_offset)
 					offsets[j] = actual_offset;
 					sizes[j] = header_size;
 				}
+				
 				if( scores[j] < min )
 					min = scores[j];
 			}
@@ -573,35 +592,33 @@ void *DataBase::main_loop(Sequence* vargp, short t_offset)
 	
 	delete read_data;
 	
-	return (void*) hasBeenFound;
+	return;
 }
 
 bool DataBase::searchSequence(Sequence* searched_sequence)
 {
         openDB(SEQUENCE);
 	hasBeenFound = false;
-	THREAD_COUNT=3;
-	cout << "threads : " << THREAD_COUNT << endl;
 	thread threads[THREAD_COUNT];
 	
     	if(!is_open[SEQUENCE])
     	{
-        	std::cout<<"DB couldn't be opened"<<std::endl;
+        	cout << "DB couldn't be opened" << endl ;
         	return hasBeenFound;
     	}
     	
+    	find_blosum();
+    	
+    	//initializes the N threads
     	for (short i=0; i<THREAD_COUNT; i++)
     		threads[i] = thread(&DataBase::main_loop, this, searched_sequence, i);
-    	//thread t0(&DataBase::main_loop, this, searched_sequence, 0);
     	
     	for (short i=0; i<THREAD_COUNT; i++)
     		threads[i].join();
 	
-    	
 	if(!hasBeenFound)
 	{
-		std::cout<<"No equivalence founded to : -> "<<std::endl;
-		//std::cout<<searched_sequence->getData()<<std::endl;
+		cout << "No equivalence found to : -> " << endl ;
 		closeDB(SEQUENCE);
 	}
 	else
@@ -611,10 +628,11 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 			
 		int max, highest_id;
 		
-		for (int i = 0; i<RESULTS; i++)
+		for (int i=0; i<RESULTS; i++)
 		{
 			max = 0;
-			for (int j = 0; j<RESULTS; j++)
+			
+			for (int j=0; j<RESULTS; j++)
 			{
 				if ( scores[j] > max )
 				{
@@ -625,6 +643,7 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 			
 			cout << " score : " << scores[highest_id] << " - offset : " << offsets[highest_id] << " - size : " << sizes[highest_id] << endl;
 			print_header( offsets[highest_id], sizes[highest_id]);
+			
 			scores[highest_id] = 0;
 		}
 		
