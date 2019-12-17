@@ -170,12 +170,17 @@ DataBase::DataBase(char* db_name, int go, int ge, int blos, int n, int t)
 DataBase::~DataBase()
 {
 	map<char*, bool>::iterator it;
+	
 	for (it = is_open.begin(); it != is_open.end() ; it++)
 	{
 		if(it->second)
 			closeDB(it->first);
 	}
 	
+	delete scores;
+	delete sizes;
+	delete offsets;
+
 }
 
 bool DataBase::anotherDBAlreadyOpen()
