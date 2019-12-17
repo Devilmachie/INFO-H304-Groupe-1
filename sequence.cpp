@@ -41,7 +41,7 @@ Sequence::Sequence(char* sequence_path)
 			else
 				sequence += line;
 		}
-		std::cout<<"Still Ok"<<std::endl;
+		cout << "Still Ok" << endl;
 		name = new Header(id);	
 		data = new char[sequence.length()+1];
 		for(int i = 0;i<sequence.length();i++)
@@ -64,7 +64,7 @@ Sequence::Sequence(char* sequence_path)
 				data[i]=sequence[i]-66;
 		}
 		data[sequence.length()]=0;
-		/*std::cout<<"Still Ok2"<<std::endl;			
+		/*cout <<"Still Ok2"<< endl;			
 		for(int i = 0;i<size;i++)
 		{
 			sequence_file.read(&c,1);
@@ -80,11 +80,11 @@ Sequence::Sequence(char* sequence_path)
 		tr_data = new uint8_t[sequence.length()+1];
 		data_len=strlen(data);	
 		transcriptSequence();
-		std::cout<<name->getName()<<std::endl;		
+		cout <<name->getName()<< endl;		
 	}
 	else
 	{
-		std::cout<<"Couldn't open sequence file"<<std::endl;
+		cout << "Couldn't open sequence file" << endl;
 		data=NULL;
 		data_len=0;
 		name=NULL;
@@ -140,7 +140,6 @@ void Sequence::transcriptSequence()
 	{
 		c=data[i];
 		tr_data[i]=this->transcript.find(c)->second;
-		//std::cout<<"Transformed "<<c<<" in "<<tr_data[i]<<std::endl;
 	}	
 }
 void Sequence::init_map()

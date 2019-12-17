@@ -11,6 +11,7 @@
 #include "header.h"
 
 using std::string;
+using namespace std;
 
 class Sequence
 {

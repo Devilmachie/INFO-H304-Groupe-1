@@ -2,20 +2,20 @@
 
 Header::Header(ifstream & header_file,unsigned long int offset,unsigned long int header_size)
 {
-	std::cout<<"Header size is : "<<header_size<<std::endl;
+	cout << "Header size is : " << header_size << endl;
 	obj_arr = new char[header_size];
 	memory_allocated.push_back(obj_arr);
-	size_to_parse=header_size;
+	size_to_parse = header_size;
 	header_file.seekg(offset,header_file.beg);
 	header_file.read(obj_arr,header_size);
-	current_obj=obj_arr;
-	last_obj=obj_arr + header_size ;
-	for (int i = 0; i<header_size;i++)
-		std::cout<<std::hex<<(int)obj_arr[i]<<"|";
-	std::cout<<""<<std::endl;
+	current_obj = obj_arr;
+	last_obj = obj_arr + header_size ;
+	for(int i = 0; i<header_size;i++)
+		cout << std::hex <<( int)obj_arr[i] <<"|";
+	cout << "" << endl;
 
 
-	next=*(current_obj);
+	next =*(current_obj);
 	nextObj();
 	
 
@@ -23,11 +23,11 @@ Header::Header(ifstream & header_file,unsigned long int offset,unsigned long int
 }
 Header::Header(std::string & name)
 {
-	parsed_string=new char[name.length()+1];
+	parsed_string = new char[name.length()+1];
 	for(int i = 0;i<name.length();i++)
-		parsed_string[i]=name[i];
-	parsed_string[name.length()]='\0';
-	std::cout<<"Still Ok"<<std::endl;
+		parsed_string[i] = name[i];
+	parsed_string[name.length()] = '\0';
+	cout << "Still Ok" << endl;
 	memory_allocated.push_back(parsed_string);
 }
 
@@ -47,8 +47,8 @@ void Header::nextCh()
 		next = *(current_obj)++;
 	else
 	{
-    		next = 0;
-		std::cout<<"Setted to 0"<<std::endl;
+    	next = 0;
+		cout << "Setted to 0" << endl;
 	}
 }
 
@@ -62,9 +62,8 @@ void Header::nextObj()
 void Header::matchObj(unsigned short match)
 {
 	if (obj != match)
-    	{
-		std::cout<<"Error expected : "<< match << "and got :"<< obj<<std::endl;
-    	}
+		cout << "Error expected : " << match << "and got :" << obj << endl;
+		
   	nextObj();
 }
 
@@ -72,7 +71,7 @@ void Header::parseInteger()
 {
 	parsed_integer=0;
 	unsigned long length = len;
-	std::cout<<"Obj type is : "<<obj<<" and len is : "<<len<<std::endl;
+	cout <<"Obj type is : "<<obj<<" and len is : "<<len<< endl;
 	if( length > 0 && length <= INT_SIZE)
 	{
 		for(int i = 0 ; i<length ; i++)
@@ -82,7 +81,7 @@ void Header::parseInteger()
 		}
 	}
 	else
-		std::cout<<"Couldn't parse integer because size isn't is of a int"<<std::endl;
+		cout << "Couldn't parse integer because size isn't is of a int" << endl;
 	
 	nextObj();
 }
@@ -90,26 +89,27 @@ void Header::parseInteger()
 void Header::parseVisibleString(char* container)
 {
 	unsigned long length = len;
-	if (len == 0x81)
+	if(len == 0x81)
 	{
-        	len = next;
-        	nextCh();
-        }
-	else if ( len == 0x82 )
+        len = next;
+        nextCh();
+    }
+	else if(len == 0x82)
 	{
 		length = next;
 		nextCh();
 		length = (length << 8) | next;
-      		nextCh();
+      	nextCh();
 	}
-	else if (len > 0x82)
+	else if(len > 0x82)
 	{
-		std::cout<<"Couldn't parse visible string because size isn't is of a string"<<std::endl;
+		cout << "Couldn't parse visible string because size isn't is of a string"<< endl;
 	}
+	
 	container = new char[length];
 	memory_allocated.push_back(container);
 
-	for(int i = 0;i<length;i++)
+	for(int i=0; i<length; i++)
 	{
 		parsed_string[i]=next;
 		nextCh();
@@ -124,17 +124,17 @@ void Header::parseVisibleString(char* container)
 	{
 		nextCh();
 		nextObj();
-		std::cout<<"Begin of the choice"<<std::endl;
+		cout <<"Begin of the choice"<< endl;
 		parseIdentifier();
 		if(next == 0 && len == 0)
 		{
-			std::cout<<"End of the choice"<<std::endl;
+			cout <<"End of the choice"<< endl;
 			nextCh();
 			nextObj();
 		}
 		else
-			std::cout<<"Couldn't Read Choice"<<std::endl;
+			cout <<"Couldn't Read Choice"<< endl;
 	}
 	else 
-		std::cout<<"Wrong Choice identifier"<<std::endl;
+		cout <<"Wrong Choice identifier"<< endl;
 }*/
