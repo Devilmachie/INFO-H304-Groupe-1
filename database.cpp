@@ -523,7 +523,7 @@ int DataBase::fill_matrix(short*** scoring_m, char* found_sequence, int found_le
 
 // loop that checks every N sequences, where N is the number of threads. 
 // We can offset each thread by i, with 0<=i<N, thus checking every sequence in the database.
-void *DataBase::main_loop(Sequence* searched_sequence, short t_offset)
+void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 {
 	char* read_data = new char[*(max_s_len).getData()];
 	uint32_t i_max = *(N).getData(), actual_offset=0, actual_size=0;

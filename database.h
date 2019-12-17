@@ -65,7 +65,7 @@ private:
 	void create_subst_mat(const char* blosum, size_t blosumsize, int *matrix, size_t matrixsize);
     	void find_blosum();
     	void print_header(uint32_t offset, int size);
-    	void *main_loop(Sequence* searched_sequence, short t_offset);
+    	void main_loop(Sequence* searched_sequence, short t_offset);
 
 	
 public:
