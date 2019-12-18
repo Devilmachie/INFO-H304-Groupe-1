@@ -462,7 +462,7 @@ void DataBase::fishData(ifstream & fp,char* buffer,uint32_t offset,uint32_t size
 }
 
 //fills out a given matrix using the Smith-Waterman algorithm
-int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length, uint32_t actual_offset)
+int DataBase::fill_matrix(unsigned short*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length, uint32_t actual_offset)
 {
 	int up_score;
 	int left_score;
@@ -519,20 +519,23 @@ int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_leng
 				else
 					score=diag_score;
 			}
-		
+			
+			if(score<0)
+				score = 0;
+			
 			//sets gaps
-			if(score==up_score)
+			if(score==up_score && !score)
 				v_gap[j-1]++;
 			else
 				v_gap[j-1]=0;
 			
-			if(score==left_score)
+			if(score==left_score && !score)
 				h_gap++;
 			else
 				h_gap=0;
 			
 			//places scores in scoring matrix
-			(*scoring_m)[i][j] = score;
+			(*scoring_m)[i][j] = (unsigned short) score;
 	
 			//keeps highest score
 			if(score>highest_score)
@@ -570,9 +573,9 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 		reading = false;
 		
 		//creates new scoring matrix of needed size;
-		int** scoring_m = new int*[(actual_size+1)];
+		unsigned short** scoring_m = new unsigned short*[(actual_size+1)];
 		for (int i=0; i<=actual_size; i++)
-			scoring_m[i]=new int[(searched_sequence->getDataLen()+1)];
+			scoring_m[i]=new unsigned short[(searched_sequence->getDataLen()+1)];
 		
 		//fills matrix, and keeps the highest score of said matrix
 		score = fill_matrix(&scoring_m, read_data, actual_size-2, searched_sequence->getData(), searched_sequence->getDataLen()-1,actual_offset);
