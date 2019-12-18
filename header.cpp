@@ -27,7 +27,6 @@ Header::Header(std::string & name)
 	for(int i = 0;i<name.length();i++)
 		parsed_string[i] = name[i];
 	parsed_string[name.length()] = '\0';
-	cout << "Still Ok" << endl;
 	memory_allocated.push_back(parsed_string);
 }
 

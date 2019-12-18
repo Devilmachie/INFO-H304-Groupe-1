@@ -41,7 +41,6 @@ Sequence::Sequence(char* sequence_path)
 			else
 				sequence += line;
 		}
-		cout << "Still Ok" << endl;
 		name = new Header(id);	
 		data = new char[sequence.length()+1];
 		for(int i = 0;i<sequence.length();i++)
@@ -80,7 +79,8 @@ Sequence::Sequence(char* sequence_path)
 		tr_data = new uint8_t[sequence.length()+1];
 		data_len=strlen(data);	
 		transcriptSequence();
-		cout <<name->getName()<< endl;		
+		cout << endl << name->getName() << endl;
+		cout << "____________________________________________________________________________" << endl << endl;		
 	}
 	else
 	{

@@ -109,8 +109,8 @@ int main(int argc,char** argv)
 	clock_t c_end = clock();
 	auto t_end = chrono::high_resolution_clock::now();
 	
-	cout << "=================================================" << endl;
-	cout << "Execution time : " <<  std::chrono::duration<double, std::milli>(t_end-t_start).count() / 1000 << " seconds." << endl;
+	cout << "____________________________________________________________________________" << endl << endl;
+	cout << "Execution time : " <<  chrono::duration<double, milli>(t_end-t_start).count() / 1000 << " seconds." << endl;
 	
 	return 0;
 }

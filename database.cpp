@@ -160,9 +160,9 @@ DataBase::DataBase(char* db_name, int go, int ge, int blos, int n, int t)
 	offsets = new uint32_t[results];
 	sizes = new int[results];
 
-	is_open.insert(pair<char*,bool>(GENERAL,false));
-	is_open.insert(pair<char*,bool>(HEADER,false));
-	is_open.insert(pair<char*,bool>(SEQUENCE,false));
+	is_open.insert(pair<char*,bool>((char*)GENERAL,false));
+	is_open.insert(pair<char*,bool>((char*)HEADER,false));
+	is_open.insert(pair<char*,bool>((char*)SEQUENCE,false));
 	path_to_db=db_name;
 	init_db(); 
 }
@@ -226,9 +226,9 @@ void DataBase::closeDB(char* mode)
 //reads parameters of used database
 void DataBase::init_db()
 {
-	openDB(GENERAL);
+	openDB((char*)GENERAL);
 	
-	if(is_open[GENERAL])
+	if(is_open[(char*)GENERAL])
 	{
 		this->version.setData(this->read_in_db);
 		this->db_type.setData(this->read_in_db);
@@ -242,7 +242,7 @@ void DataBase::init_db()
 		this->offset_h.setData(this->read_in_db, true, *(this->N).getData() + 1);
 		this->offset_r.setData(this->read_in_db, true, *(this->N).getData() + 1);
 
-		closeDB(GENERAL);
+		closeDB((char*)GENERAL);
 	}
 	else
 		cout << "DB couldn't be open" << endl;
@@ -555,9 +555,6 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 	
 	for(int i=t_offset; i<i_max; i=i+thread_count)
 	{
-		if(i%10000 == 0)
-			cout << "at sequence number " << i << endl;
-		
 		//finds offset in sequence database of wanted sequence
 		actual_offset=*(offset_residue+i);
 		actual_size=*(offset_residue+i+1)-*(offset_residue+i);
@@ -622,11 +619,11 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 
 bool DataBase::searchSequence(Sequence* searched_sequence)
 {
-        openDB(SEQUENCE);
+        openDB((char*)SEQUENCE);
 	hasBeenFound = false;
 	thread threads[thread_count];
 	
-    	if(!is_open[SEQUENCE])
+    	if(!is_open[(char*)SEQUENCE])
     	{
         	cout << "DB couldn't be opened" << endl ;
         	return hasBeenFound;
@@ -644,12 +641,12 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 	if(!hasBeenFound)
 	{
 		cout << "No equivalence found to : -> " << endl ;
-		closeDB(SEQUENCE);
+		closeDB((char*)SEQUENCE);
 	}
 	else
 	{	
-		closeDB(SEQUENCE);
-		openDB(HEADER);
+		closeDB((char*)SEQUENCE);
+		openDB((char*)HEADER);
 			
 		int max, highest_id;
 		
@@ -666,13 +663,13 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 				}
 			}
 			
-			cout << " score : " << scores[highest_id] << " - offset : " << offsets[highest_id] << " - size : " << sizes[highest_id] << endl;
 			print_header( offsets[highest_id], sizes[highest_id]);
+			cout << "  score : " << scores[highest_id] << endl;
 			
 			scores[highest_id] = 0;
 		}
 		
-		closeDB(HEADER);
+		closeDB((char*)HEADER);
 		
 	}
 	
