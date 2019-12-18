@@ -6,6 +6,7 @@
 #include <string>
 
 using std::ifstream;
+using namespace std;
 
 #define INT_SIZE 4
 #define BYTE_SIZE 8

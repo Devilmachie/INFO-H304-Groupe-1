@@ -3,24 +3,18 @@
 #include <iostream>
 #include "bdata.h"
 #include "sequence.h"
-#include <cstring>
+#include <cstring> // check si stdlib
 #include <map>
-#include "header.h"
+#include <thread>
 
 #define IS_PROTEIN 1
 #define IS_DNA 0
 
-#define  GENERAL ".pin"
-#define  HEADER ".phr"
-#define  SEQUENCE ".psq"
+#define GENERAL ".pin"
+#define HEADER ".phr"
+#define SEQUENCE ".psq"
 
-using std::string;
-using std::ifstream;
-using std::ios;
-using std::streamsize;
-
-
-
+using namespace std;
 
 class DataBase
 {
@@ -44,20 +38,43 @@ private:
 
 	BinaryData<char> title;
 	BinaryData<char> t_stamp;
-	//DB information end
 	
+	int min_score = 0;
+	int* scores;
+	uint32_t* offsets;
+	int* sizes;
 
+	bool reading = false;
+	bool hasBeenFound;
+	
+	int gap_penalty;
+	int extension_penalty;
+	int results;
+	int thread_count;
+	int blosum_number;
+
+	int BLOSUM[625] = {0};
+	
 	void openDB(char* mode);
 	void closeDB(char* mode);
 	bool anotherDBAlreadyOpen();
 	void readb_data(ifstream & db,void* buffer,streamsize n_info);
 	void init_db();
+	
+	int getvalue(char c);
+	void create_subst_mat(const char* blosum, size_t blosumsize, int *matrix, size_t matrixsize);
+    	void find_blosum();
+    	void print_header(uint32_t offset, int size);
+    	void main_loop(Sequence* searched_sequence, short t_offset);
+
+	
 public:
-	DataBase(char* db_name);
+	DataBase(char* db_name, int go, int ge, int blos, int n, int t);
 	~DataBase();
 	
 	void showDBInfo();
 	bool searchSequence(Sequence* new_sequence);
+	int fill_matrix(unsigned short*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length,uint32_t actual_offset);
 	void fishData(ifstream & fp, char* buffer, uint32_t offset,uint32_t size);
     	void readHeader (ifstream & fp, char* buffer, uint32_t,uint32_t size);
 };
