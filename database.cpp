@@ -462,13 +462,13 @@ void DataBase::fishData(ifstream & fp,char* buffer,uint32_t offset,uint32_t size
 }
 
 //fills out a given matrix using the Smith-Waterman algorithm
-int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length)
+int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length, uint32_t actual_offset)
 {
-	short up_score;
-	short left_score;
-	short diag_score;
-	short score;
-	short highest_score=0;
+	int up_score;
+	int left_score;
+	int diag_score;
+	int score;
+	int highest_score=0;
 	
 	short h_gap; //checks if the allready is a horizontal gap opened
 	short v_gap[searched_length]; //checks if the allready is a vertical gap opened
@@ -486,7 +486,7 @@ int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_leng
 	//fills the scoring matrix
 	for (int i=1; i<=found_length; i++)
 	{
-		h_gap=0;
+		h_gap = 0;
 		
 		for (int j=1; j<=searched_length; j++)
 		{
@@ -500,7 +500,9 @@ int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_leng
 			else
 				left_score = (int) (*scoring_m)[i][j-1] - extension_penalty;
 				
-			diag_score = (int) (*scoring_m)[i-1][j-1] +  BLOSUM[25*(found_sequence[i-1]-1)+searched_sequence[j-1]-1];
+			while(!found_sequence[i-1])
+				fishData(read_in_db,found_sequence,actual_offset,found_length+2);
+			diag_score = (int) (*scoring_m)[i-1][j-1] +  BLOSUM[25*((int) found_sequence[i-1]-1)+(int) searched_sequence[j-1]-1];
 			
 			//find max
 			if(up_score<left_score)
@@ -517,7 +519,7 @@ int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_leng
 				else
 					score=diag_score;
 			}
-			
+		
 			//sets gaps
 			if(score==up_score)
 				v_gap[j-1]++;
@@ -530,11 +532,11 @@ int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_leng
 				h_gap=0;
 			
 			//places scores in scoring matrix
-			(*scoring_m)[i][j]=score;
-			
+			(*scoring_m)[i][j] = score;
+	
 			//keeps highest score
 			if(score>highest_score)
-				highest_score=score;
+				highest_score = score;
 			 
 		}
 	}
@@ -573,7 +575,7 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 			scoring_m[i]=new int[(searched_sequence->getDataLen()+1)];
 		
 		//fills matrix, and keeps the highest score of said matrix
-		score = fill_matrix(&scoring_m, read_data, actual_size-2, searched_sequence->getData(), searched_sequence->getDataLen()-1);
+		score = fill_matrix(&scoring_m, read_data, actual_size-2, searched_sequence->getData(), searched_sequence->getDataLen()-1,actual_offset);
 		
 		//if said score is higher than the lowest score kept in memory, it is then itself kept in memroy. 
 		if(score > min_score)
@@ -672,7 +674,7 @@ bool DataBase::searchSequence(Sequence* searched_sequence)
 		closeDB((char*)HEADER);
 		
 	}
-	
+
 	return hasBeenFound;
 }
 
