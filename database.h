@@ -74,7 +74,7 @@ public:
 	
 	void showDBInfo();
 	bool searchSequence(Sequence* new_sequence);
-	int fill_matrix(unsigned short*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length);
+	int fill_matrix(int*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length);
 	void fishData(ifstream & fp, char* buffer, uint32_t offset,uint32_t size);
     	void readHeader (ifstream & fp, char* buffer, uint32_t,uint32_t size);
 };

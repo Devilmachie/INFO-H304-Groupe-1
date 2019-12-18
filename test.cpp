@@ -1,6 +1,8 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <chrono>
+#include <ctime>
 #include "database.h"
 #include "sequence.h"
 using namespace std;
@@ -12,6 +14,9 @@ int main(int argc,char** argv)
 {
 	string argv_i;
 	int go=11, ge=1, blos=62, n=20, t=4, value, temp;
+	
+	 clock_t c_start = clock();
+	 auto t_start = chrono::high_resolution_clock::now();
 	
 	if(argc == 2)
 	{
@@ -100,7 +105,12 @@ int main(int argc,char** argv)
 		delete seq;
 		delete db;
 	}
-
+	
+	clock_t c_end = clock();
+	auto t_end = chrono::high_resolution_clock::now();
+	
+	cout << "=================================================" << endl;
+	cout << "Execution time : " <<  std::chrono::duration<double, std::milli>(t_end-t_start).count() / 1000 << " seconds." << endl;
 	
 	return 0;
 }

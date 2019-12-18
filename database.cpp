@@ -462,7 +462,7 @@ void DataBase::fishData(ifstream & fp,char* buffer,uint32_t offset,uint32_t size
 }
 
 //fills out a given matrix using the Smith-Waterman algorithm
-int DataBase::fill_matrix(unsigned short*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length)
+int DataBase::fill_matrix(int*** scoring_m, char* found_sequence, int found_length, char* searched_sequence, int searched_length)
 {
 	short up_score;
 	short left_score;
@@ -474,21 +474,21 @@ int DataBase::fill_matrix(unsigned short*** scoring_m, char* found_sequence, int
 	short v_gap[searched_length]; //checks if the allready is a vertical gap opened
 	
 	//first NULL lines
-	for (unsigned short i=0; i<=searched_length; i++)
+	for (int i=0; i<=searched_length; i++)
 		(*scoring_m)[0][i]=0;
-	for (unsigned short i=1; i<=found_length; i++)
+	for (int i=1; i<=found_length; i++)
 		(*scoring_m)[i][0]=0;
 		
-	for (unsigned short i=0; i<searched_length; i++)
+	for (int i=0; i<searched_length; i++)
 		v_gap[i]=0;
 		
 	
 	//fills the scoring matrix
-	for (unsigned short i=1; i<=found_length; i++)
+	for (int i=1; i<=found_length; i++)
 	{
 		h_gap=0;
 		
-		for (unsigned short j=1; j<=searched_length; j++)
+		for (int j=1; j<=searched_length; j++)
 		{
 			if ( !v_gap[j-1] ) //if no vertical gap is opened
 				up_score = (*scoring_m)[i-1][j] - gap_penalty; 
@@ -553,7 +553,7 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 	uint32_t* offset_header = (offset_h).getData();
 	int score, header_size, min;
 	
-	for(int i=t_offset+470000; i<i_max; i=i+thread_count)
+	for(int i=t_offset; i<i_max; i=i+thread_count)
 	{
 		if(i%10000 == 0)
 			cout << "at sequence number " << i << endl;
@@ -571,9 +571,9 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 		reading = false;
 		
 		//creates new scoring matrix of needed size;
-		unsigned short** scoring_m = new unsigned short*[(actual_size+1)];
-		for (unsigned short i=0; i<=actual_size; i++)
-			scoring_m[i]=new unsigned short[(searched_sequence->getDataLen()+1)];
+		int** scoring_m = new int*[(actual_size+1)];
+		for (int i=0; i<=actual_size; i++)
+			scoring_m[i]=new int[(searched_sequence->getDataLen()+1)];
 		
 		//fills matrix, and keeps the highest score of said matrix
 		score = fill_matrix(&scoring_m, read_data, actual_size-2, searched_sequence->getData(), searched_sequence->getDataLen()-1);
