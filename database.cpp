@@ -373,14 +373,16 @@ void DataBase::find_blosum()
 { 
 	int matrix[625] = {0}; // initialize matrix to all 0 values
 	
-	switch(blosum_number)
-	{
-		case 62:create_subst_mat(mat_blosum62, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
-		case 45:create_subst_mat(mat_blosum45, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
-		case 50:create_subst_mat(mat_blosum50, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
-		case 80:create_subst_mat(mat_blosum80, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
-		case 90:create_subst_mat(mat_blosum90, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
-	}
+	if(blosum_number==62)
+		create_subst_mat(mat_blosum62, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+	else if(blosum_number==45)
+		create_subst_mat(mat_blosum45, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+	else if(blosum_number==50)
+		create_subst_mat(mat_blosum50, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+	else if(blosum_number==80)
+		create_subst_mat(mat_blosum80, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
+	else if(blosum_number==90)
+		create_subst_mat(mat_blosum90, sizeof(mat_blosum62), matrix, (sizeof(matrix)/sizeof(matrix[0])) );
 	
 	for(int x = 0; x < 25; x++) // assigns values of temporary matrix to used matrix
 		for(int y = 0; y < 25; y++)
