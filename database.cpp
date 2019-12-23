@@ -580,7 +580,7 @@ void DataBase::main_loop(Sequence* searched_sequence, short t_offset)
 			scoring_m[i]=new unsigned short[(searched_sequence->getDataLen()+1)];
 		
 		//fills matrix, and keeps the highest score of said matrix
-		score = fill_matrix(&scoring_m, read_data, actual_size-2, searched_sequence->getData(), searched_sequence->getDataLen()-1,actual_offset);
+		score = fill_matrix(&scoring_m, read_data, actual_size-1, searched_sequence->getData(), searched_sequence->getDataLen(),actual_offset);
 		
 		//if said score is higher than the lowest score kept in memory, it is then itself kept in memroy. 
 		if(score > min_score)
